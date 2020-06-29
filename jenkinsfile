@@ -1,0 +1,37 @@
+pipeline {
+    environment {
+        registry = "madgraycat/jenkins-test"
+        registryCredential = 'dockerhub'
+    }
+    agent none
+    stages {
+        stage ('Build image with maven '){
+            "agent" {
+                dockerfile{
+                    dir '/tmp/new123'
+                    filename 'Dockerfile'
+                    label 'docker1'
+                    additionalBuildArgs '-t mynewimage'
+                }
+            }
+        steps {
+            git 'https://github.com/boxfuse/boxfuse-sample-java-war-hello.git'
+            sh 'mvn clean package'
+
+        }
+        }
+        stage ('B1') {
+            agent {
+                docker {
+                    image 'mynewimage'
+                    args '-u root --privileged -v /var/run/docker.sock:/var/run/docker.sock'
+                }
+            }
+        steps {
+            sh 'cd /var/lib/jenkins/workspace/test3/target/'
+            git 'https://github.com/madgraycat/jenkins_ex_new.git'
+            sh 'sudo docker build -t madgraycat/jenkins-test .'
+        }
+        }
+    }
+}

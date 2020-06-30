@@ -38,7 +38,7 @@ pipeline {
         stage('Run on prod'){
             steps {
                 sshagent(['prod']) {
-                    sh 'docker run -d $registry/my_app:latest'
+                    sh 'docker run -d -p 8080:8080 $registry/my_app:latest'
                 }
             }
         }
